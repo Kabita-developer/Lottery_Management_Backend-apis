@@ -72,10 +72,54 @@ const ticketSchema = new mongoose.Schema(
 			ref: 'SameMaster',
 			default: null,
 			index: true
+		},
+		// Approval workflow fields
+		status: {
+			type: String,
+			enum: ['pending', 'accepted', 'rejected'],
+			default: 'pending',
+			index: true
+		},
+		approved_by: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'SuperAdmin',
+			default: null,
+			index: true
+		},
+		approved_at: {
+			type: Date,
+			default: null
+		},
+		rejection_reason: {
+			type: String,
+			default: null,
+			trim: true,
+			maxlength: [500, 'Rejection reason cannot exceed 500 characters']
 		}
 	},
 	{ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );
+
+// Ensure MongoDB _id and __v are not leaked in API responses
+ticketSchema.set('toJSON', {
+	virtuals: false,
+	versionKey: false,
+	transform: (_doc, ret) => {
+		delete ret._id;
+		delete ret.__v;
+		return ret;
+	}
+});
+
+ticketSchema.set('toObject', {
+	virtuals: false,
+	versionKey: false,
+	transform: (_doc, ret) => {
+		delete ret._id;
+		delete ret.__v;
+		return ret;
+	}
+});
 
 // Pre-save hook to auto-increment id if not set
 ticketSchema.pre('save', async function(next) {

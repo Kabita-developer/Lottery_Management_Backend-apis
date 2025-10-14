@@ -32,13 +32,228 @@ Authorization: Bearer <user_jwt_token>
 }
 ```
 
+### 2. Get All Tickets (Super Admin)
+- **Method**: GET
+- **Path**: `/api/tickets`
+- **Authentication**: Super Admin JWT required
+- **Query Params**:
+  - `page` (optional, default: 1)
+  - `limit` (optional, default: 10, max: 100)
+  - `status` (optional: `pending` | `accepted` | `rejected`)
+  - `search` (optional: matches `item_code`, `full_ticket_name`, `group_name`, `state_name`, `ticket_unique_id`)
+
+**Request (cURL)**:
+```bash
+curl -X GET "http://localhost:3000/api/tickets?page=1&limit=10&status=pending&search=ITM" \
+  -H "Authorization: Bearer <super_admin_jwt>"
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Tickets retrieved successfully",
+  "data": {
+    "tickets": [
+      {
+        "id": 1,
+        "item_code": "ITM-001",
+        "full_ticket_name": "Super Lottery Ticket",
+        "group_name": "Group A",
+        "draw_time": "10:30",
+        "draw_day": "Friday",
+        "ticket_type": "Bumper",
+        "state_name": "Maharashtra",
+        "number_of_digits": 5,
+        "book_contains": 100,
+        "ticket_unique_id": "TKT-00001",
+        "select_same": "65f8a1b2c3d4e5f6a7b8c9d0",
+        "status": "pending",
+        "approved_by": null,
+        "approved_at": null,
+        "rejection_reason": null,
+        "created_at": "2025-10-10T09:00:00.000Z",
+        "updated_at": "2025-10-10T09:00:00.000Z"
+      }
+    ],
+    "pagination": {
+      "current_page": 1,
+      "total_pages": 5,
+      "total_records": 42,
+      "limit": 10
+    }
+  }
+}
+```
+
+**Error Responses**
+- 401 Unauthorized (missing/invalid token)
+- 403 Forbidden (non-super admin)
+- 500 Internal Server Error
+
+### 3. Approve/Reject Ticket (Super Admin)
+- **Method**: POST
+- **Path**: `/api/tickets/:id/approve`
+- **Authentication**: Super Admin JWT required
+- **Params**:
+  - `id` (path): MongoDB ObjectId of the ticket
+- **Body**:
+```json
+// Approve
+{ "action": "accept" }
+
+// Reject
+{ "action": "reject", "rejection_reason": "Duplicate ticket" }
+```
+
+**Request (cURL - Approve)**:
+```bash
+curl -X POST "http://localhost:3000/api/tickets/68ee1f79557aa14d14099a06/approve" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <super_admin_jwt>" \
+  -d '{"action":"accept"}'
+```
+
+**Request (cURL - Reject)**:
+```bash
+curl -X POST "http://localhost:3000/api/tickets/68ee1f79557aa14d14099a06/approve" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <super_admin_jwt>" \
+  -d '{"action":"reject","rejection_reason":"Duplicate ticket"}'
+```
+
+**Response (200 OK - Approved)**:
+```json
+{
+  "success": true,
+  "message": "Ticket updated successfully",
+  "data": {
+    "id": "68ee1f79557aa14d14099a06",
+    "item_code": "ITM-001",
+    "status": "accepted",
+    "approved_by": "66fd2a5c3e1b9a0012abcd34",
+    "approved_at": "2025-10-14T10:22:31.123Z",
+    "rejection_reason": null,
+    "updated_at": "2025-10-14T10:22:31.123Z"
+  }
+}
+```
+
+**Response (200 OK - Rejected)**:
+```json
+{
+  "success": true,
+  "message": "Ticket updated successfully",
+  "data": {
+    "id": "68ee1f79557aa14d14099a06",
+    "item_code": "ITM-001",
+    "status": "rejected",
+    "approved_by": "66fd2a5c3e1b9a0012abcd34",
+    "approved_at": "2025-10-14T10:22:31.123Z",
+    "rejection_reason": "Duplicate ticket",
+    "updated_at": "2025-10-14T10:22:31.123Z"
+  }
+}
+```
+
+**Validation Rules**
+- `action`: required, one of `accept` or `reject`
+- `rejection_reason`: required when `action` is `reject` (1-500 chars); must be omitted for `accept`
+
+**Error Responses**
+- 400 Bad Request (invalid `action`, missing `rejection_reason`, or ticket not in `pending` state)
+- 401 Unauthorized (missing/invalid token)
+- 403 Forbidden (non-super admin)
+- 404 Not Found (ticket does not exist)
+- 500 Internal Server Error
+
+### 4. Get Ticket By ID (Super Admin)
+- **Method**: GET
+- **Path**: `/api/tickets/:id`
+- **Authentication**: Super Admin JWT required
+- **Params**:
+  - `id` (path): MongoDB ObjectId of the ticket
+
+**Request (cURL)**:
+```bash
+curl -X GET "http://localhost:3000/api/tickets/68ee1f79557aa14d14099a06" \
+  -H "Authorization: Bearer <super_admin_jwt>"
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Ticket retrieved successfully",
+  "data": {
+    "id": "68ee1f79557aa14d14099a06",
+    "item_code": "ITM-001",
+    "full_ticket_name": "Super Lottery Ticket",
+    "group_name": "Group A",
+    "draw_time": "10:30",
+    "draw_day": "Friday",
+    "ticket_type": "Bumper",
+    "state_name": "Maharashtra",
+    "number_of_digits": 5,
+    "book_contains": 100,
+    "ticket_unique_id": "TKT-00001",
+    "select_same": "65f8a1b2c3d4e5f6a7b8c9d0",
+    "status": "pending",
+    "approved_by": null,
+    "approved_at": null,
+    "rejection_reason": null,
+    "created_at": "2025-10-10T09:00:00.000Z",
+    "updated_at": "2025-10-10T09:00:00.000Z"
+  }
+}
+```
+
+**Error Responses**
+- 401 Unauthorized (missing/invalid token)
+- 403 Forbidden (non-super admin)
+- 404 Not Found (ticket does not exist)
+- 500 Internal Server Error
+
+### 5. Delete Ticket (Super Admin)
+- **Method**: POST
+- **Path**: `/api/tickets/:id/delete`
+- **Authentication**: Super Admin JWT required
+- **Params**:
+  - `id` (path): MongoDB ObjectId of the ticket
+
+**Request (cURL)**:
+```bash
+curl -X POST "http://localhost:3000/api/tickets/68ee1f79557aa14d14099a06/delete" \
+  -H "Authorization: Bearer <super_admin_jwt>"
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Ticket deleted successfully",
+  "data": {
+    "id": "68ee1f79557aa14d14099a06",
+    "item_code": "ITM-001",
+    "status": "pending",
+    "deleted_at": "2025-10-14T10:22:31.123Z"
+  }
+}
+```
+
+**Error Responses**
+- 401 Unauthorized (missing/invalid token)
+- 403 Forbidden (non-super admin)
+- 404 Not Found (ticket does not exist)
+- 500 Internal Server Error
+
 **Response (201 Created)**:
 ```json
 {
   "success": true,
   "message": "Ticket created successfully",
   "data": {
-    "id": 1,
+    "_id": "66ff0c7f8f5c9a2c1a2b3c4d",
     "item_code": "ITM-001",
     "full_ticket_name": "Super Lottery Ticket",
     "group_name": "Group A",

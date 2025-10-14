@@ -18,4 +18,14 @@ exports.createTicketSchema = Joi.object({
 	})
 });
 
+// Approve/Reject Ticket schema
+exports.approveTicketSchema = Joi.object({
+	action: Joi.string().valid('accept', 'reject').required(),
+	rejection_reason: Joi.when('action', {
+		is: 'reject',
+		then: Joi.string().min(1).max(500).required(),
+		otherwise: Joi.forbidden()
+	})
+});
+
 

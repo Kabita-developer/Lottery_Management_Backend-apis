@@ -1,8 +1,9 @@
 const express = require('express');
 const { validateBody } = require('../shared/validate');
 const { requireUser } = require('../middleware/userAuth');
-const { createTicketSchema } = require('../validation/ticket.schemas');
-const { createTicket } = require('../controllers/ticket.controller');
+const { requireSuperAdmin } = require('../middleware/auth');
+const { createTicketSchema, approveTicketSchema } = require('../validation/ticket.schemas');
+const { createTicket, approveTicket, getAllTickets, getTicketById, deleteTicket } = require('../controllers/ticket.controller');
 const Ticket = require('../models/Ticket');
 
 const router = express.Router();
@@ -60,6 +61,18 @@ router.post('/test-create', async (req, res) => {
 		});
 	}
 });
+
+// Super Admin ticket approval route (must appear before user auth middleware)
+router.post('/:id/approve', requireSuperAdmin, validateBody(approveTicketSchema), approveTicket);
+
+// Super Admin get all tickets (with pagination and filters)
+router.get('/', requireSuperAdmin, getAllTickets);
+
+// Super Admin get ticket by ID
+router.get('/:id', requireSuperAdmin, getTicketById);
+
+// Super Admin delete ticket by ID (POST instead of DELETE)
+router.post('/:id/delete', requireSuperAdmin, deleteTicket);
 
 router.use(requireUser);
 
