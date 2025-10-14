@@ -1,0 +1,275 @@
+{
+  "info": {
+    "name": "DrawMaster API Collection",
+    "description": "Complete collection for testing DrawMaster API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "super_admin_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Super Admin Pre-Auth Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/super-admin/pre-auth-token",
+              "host": ["{{base_url}}"],
+              "path": ["api", "super-admin", "pre-auth-token"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Super Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('super_admin_token', response.token);",
+                  "        console.log('Super Admin token saved:', response.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{pre_auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/super-admin/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "super-admin", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "DrawMaster CRUD",
+      "item": [
+        {
+          "name": "Create Draw",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{super_admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"drawTime\": {\n    \"date\": \"21-01-20\",\n    \"time\": \"10:30\"\n  },\n  \"lastUnsoldTime\": {\n    \"date\": \"21-01-20\",\n    \"time\": \"10:30\"\n  },\n  \"sellingRate\": 85.5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/draw-master",
+              "host": ["{{base_url}}"],
+              "path": ["api", "draw-master"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Draws",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{super_admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/draw-master",
+              "host": ["{{base_url}}"],
+              "path": ["api", "draw-master"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Draw by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{super_admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/draw-master/65f8a1b2c3d4e5f6a7b8c9d0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "draw-master", "65f8a1b2c3d4e5f6a7b8c9d0"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Draw",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{super_admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"drawTime\": {\n    \"date\": \"22-01-20\",\n    \"time\": \"11:00\"\n  },\n  \"sellingRate\": 90.0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/draw-master/65f8a1b2c3d4e5f6a7b8c9d0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "draw-master", "65f8a1b2c3d4e5f6a7b8c9d0"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Draw",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{super_admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/draw-master/delete/65f8a1b2c3d4e5f6a7b8c9d0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "draw-master", "delete", "65f8a1b2c3d4e5f6a7b8c9d0"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test Data Samples",
+      "item": [
+        {
+          "name": "Create Draw - Sample 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{super_admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"drawTime\": {\n    \"date\": \"15-03-24\",\n    \"time\": \"14:00\"\n  },\n  \"lastUnsoldTime\": {\n    \"date\": \"15-03-24\",\n    \"time\": \"13:45\"\n  },\n  \"sellingRate\": 75.5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/draw-master",
+              "host": ["{{base_url}}"],
+              "path": ["api", "draw-master"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Draw - Sample 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{super_admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"drawTime\": {\n    \"date\": \"20-03-24\",\n    \"time\": \"18:30\"\n  },\n  \"lastUnsoldTime\": {\n    \"date\": \"20-03-24\",\n    \"time\": \"18:15\"\n  },\n  \"sellingRate\": 92.0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/draw-master",
+              "host": ["{{base_url}}"],
+              "path": ["api", "draw-master"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Draw - Sample 3",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{super_admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"drawTime\": {\n    \"date\": \"25-03-24\",\n    \"time\": \"09:15\"\n  },\n  \"lastUnsoldTime\": {\n    \"date\": \"25-03-24\",\n    \"time\": \"09:00\"\n  },\n  \"sellingRate\": 68.75\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/draw-master",
+              "host": ["{{base_url}}"],
+              "path": ["api", "draw-master"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

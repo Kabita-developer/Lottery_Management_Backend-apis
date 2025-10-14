@@ -1,0 +1,209 @@
+{
+  "info": {
+    "name": "Ticket Management API",
+    "description": "API collection for Ticket Management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get User Pre-Auth Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/pre-auth-token",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "pre-auth-token"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('user_token', response.token);",
+                  "        console.log('User token saved:', response.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"user123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ticket Management",
+      "item": [
+        {
+          "name": "Create Ticket - Minimal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_code\": \"ITM-001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Ticket - Complete",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_code\": \"ITM-002\",\n  \"full_ticket_name\": \"Weekly Lottery Ticket\",\n  \"group_name\": \"Group B\",\n\n  \"draw_time\": \"15:00\",\n  \"draw_day\": \"Sunday\",\n  \"ticket_type\": \"Weekly\",\n  \"state_name\": \"Delhi\",\n  \"number_of_digits\": 6,\n  \"book_contains\": 200,\n  \"ticket_unique_id\": \"TKT-00002\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Ticket - Bumper Type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_code\": \"ITM-003\",\n  \"full_ticket_name\": \"Premium Lottery Ticket\",\n  \"group_name\": \"Premium Group\",\n\n  \"draw_time\": \"20:00\",\n  \"draw_day\": \"Saturday\",\n  \"ticket_type\": \"Bumper\",\n  \"state_name\": \"Karnataka\",\n  \"number_of_digits\": 7,\n  \"book_contains\": 500,\n  \"ticket_unique_id\": \"TKT-00003\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Ticket - Validation Error Test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_ticket_name\": \"Test Ticket Without Item Code\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Ticket - Unauthorized Test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_code\": \"ITM-004\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
