@@ -27,8 +27,8 @@ router.post('/signup', validateBody(signupSchema), signup);
 // Generate pre-authentication token (for system administrators)
 router.get('/pre-auth-token', generatePreAuthToken);
 
-// Login now requires pre-authentication with JWT token
-router.post('/login', requireSuperAdminPreAuth, validateBody(loginSchema), login);
+// Login without pre-authentication requirement
+router.post('/login', validateBody(loginSchema), login);
 
 // Password reset flow (no authentication required)
 router.post('/forgot-password', validateBody(forgotPasswordSchema), forgotPassword);

@@ -13,12 +13,18 @@ exports.createDraw = async (req, res) => {
 	try {
 		const { drawTime, lastUnsoldTime, sellingRate } = req.body;
 		
+		// Debug logging
+		console.log('Received data:', { drawTime, lastUnsoldTime, sellingRate });
+		
 		// Create new draw
 		const draw = await DrawMaster.create({
 			drawTime,
 			lastUnsoldTime,
 			sellingRate
 		});
+		
+		// Debug logging after creation
+		console.log('Created draw:', draw);
 		
 		return res.status(201).json({
 			success: true,
@@ -27,7 +33,7 @@ exports.createDraw = async (req, res) => {
 				id: draw._id,
 				drawTime: draw.drawTime,
 				lastUnsoldTime: draw.lastUnsoldTime,
-				sellingRate: draw.sellingRate,
+				sellingRate: formatSellingRate(draw.sellingRate),
 				createdAt: draw.createdAt,
 				updatedAt: draw.updatedAt
 			}
@@ -49,11 +55,18 @@ exports.getAllDraws = async (req, res) => {
 			.sort({ createdAt: -1 })
 			.select('-__v');
 		
-		// Format sellingRate as currency for each draw
-		const formattedDraws = draws.map(draw => ({
-			...draw.toObject(),
-			sellingRate: formatSellingRate(draw.sellingRate)
-		}));
+		// Return raw sellingRate without currency formatting and reorder fields
+		const formattedDraws = draws.map(draw => {
+			const drawObj = draw.toObject();
+			return {
+				_id: drawObj._id,
+				drawTime: drawObj.drawTime,
+				lastUnsoldTime: drawObj.lastUnsoldTime,
+				sellingRate: drawObj.sellingRate,
+				createdAt: drawObj.createdAt,
+				updatedAt: drawObj.updatedAt
+			};
+		});
 		
 		return res.status(200).json({
 			success: true,
@@ -88,10 +101,9 @@ exports.getDrawById = async (req, res) => {
 			});
 		}
 		
-		// Format sellingRate as currency
+		// Return raw sellingRate without currency formatting
 		const formattedDraw = {
-			...draw.toObject(),
-			sellingRate: formatSellingRate(draw.sellingRate)
+			...draw.toObject()
 		};
 		
 		return res.status(200).json({
@@ -136,7 +148,7 @@ exports.updateDraw = async (req, res) => {
 				id: draw._id,
 				drawTime: draw.drawTime,
 				lastUnsoldTime: draw.lastUnsoldTime,
-				sellingRate: formatSellingRate(draw.sellingRate),
+				sellingRate: draw.sellingRate,
 				createdAt: draw.createdAt,
 				updatedAt: draw.updatedAt
 			}
@@ -173,7 +185,7 @@ exports.deleteDraw = async (req, res) => {
 				id: draw._id,
 				drawTime: draw.drawTime,
 				lastUnsoldTime: draw.lastUnsoldTime,
-				sellingRate: formatSellingRate(draw.sellingRate),
+				sellingRate: draw.sellingRate,
 				deletedAt: new Date().toISOString()
 			}
 		});
