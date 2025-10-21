@@ -20,6 +20,12 @@ router.use('/same-master', require('./sameMaster.routes'));
 // Tickets routes (Admin only)
 router.use('/tickets', require('./ticket.routes'));
 
+// Stockist routes (Admin only)
+router.use('/stockists', require('./stockist.routes'));
+
+// Central auth routes (works for all user types)
+router.use('/auth', require('./auth.routes'));
+
 module.exports = router;
 
 

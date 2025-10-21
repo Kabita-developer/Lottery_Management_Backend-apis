@@ -211,4 +211,47 @@ exports.changePassword = async (req, res) => {
 	}
 };
 
+exports.whoAmI = async (req, res) => {
+	try {
+		const superAdminId = req.auth.sub;
+		
+		// Find super admin
+		const superAdmin = await SuperAdmin.findById(superAdminId);
+		if (!superAdmin) {
+			return res.status(404).json({ 
+				success: false,
+				message: 'Super admin not found' 
+			});
+		}
+		
+		// Check if super admin is active
+		if (!superAdmin.isActive) {
+			return res.status(403).json({ 
+				success: false,
+				message: 'Account is disabled' 
+			});
+		}
+		
+		return res.status(200).json({
+			success: true,
+			message: 'Super admin profile retrieved successfully',
+			data: {
+				id: superAdmin._id,
+				fullName: superAdmin.fullName,
+				email: superAdmin.email,
+				role: superAdmin.role,
+				isActive: superAdmin.isActive,
+				created_at: superAdmin.createdAt,
+				updated_at: superAdmin.updatedAt
+			}
+		});
+	} catch (err) {
+		console.error('Error fetching super admin profile:', err);
+		return res.status(500).json({ 
+			success: false,
+			message: 'Internal server error' 
+		});
+	}
+};
+
 

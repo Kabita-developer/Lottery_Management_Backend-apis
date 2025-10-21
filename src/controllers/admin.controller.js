@@ -210,3 +210,46 @@ exports.changePassword = async (req, res) => {
 		return res.status(500).json({ message: 'Internal server error' });
 	}
 };
+
+exports.whoAmI = async (req, res) => {
+	try {
+		const adminId = req.auth.sub;
+		
+		// Find admin
+		const admin = await Admin.findById(adminId);
+		if (!admin) {
+			return res.status(404).json({ 
+				success: false,
+				message: 'Admin not found' 
+			});
+		}
+		
+		// Check if admin is active
+		if (!admin.isActive) {
+			return res.status(403).json({ 
+				success: false,
+				message: 'Account is disabled' 
+			});
+		}
+		
+		return res.status(200).json({
+			success: true,
+			message: 'Admin profile retrieved successfully',
+			data: {
+				id: admin._id,
+				fullName: admin.fullName,
+				email: admin.email,
+				role: admin.role,
+				isActive: admin.isActive,
+				created_at: admin.createdAt,
+				updated_at: admin.updatedAt
+			}
+		});
+	} catch (err) {
+		console.error('Error fetching admin profile:', err);
+		return res.status(500).json({ 
+			success: false,
+			message: 'Internal server error' 
+		});
+	}
+};

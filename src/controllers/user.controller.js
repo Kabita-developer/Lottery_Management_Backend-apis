@@ -223,3 +223,49 @@ exports.changePassword = async (req, res) => {
 		return res.status(500).json({ message: 'Internal server error' });
 	}
 };
+
+exports.whoAmI = async (req, res) => {
+	try {
+		const userId = req.auth.sub;
+		
+		// Find user
+		const user = await User.findById(userId);
+		if (!user) {
+			return res.status(404).json({ 
+				success: false,
+				message: 'User not found' 
+			});
+		}
+		
+		// Check if user is active
+		if (!user.isActive) {
+			return res.status(403).json({ 
+				success: false,
+				message: 'Account is disabled' 
+			});
+		}
+		
+		return res.status(200).json({
+			success: true,
+			message: 'User profile retrieved successfully',
+			data: {
+				id: user._id,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				email: user.email,
+				address: user.address,
+				phone: user.phone,
+				role: user.role,
+				isActive: user.isActive,
+				created_at: user.createdAt,
+				updated_at: user.updatedAt
+			}
+		});
+	} catch (err) {
+		console.error('Error fetching user profile:', err);
+		return res.status(500).json({ 
+			success: false,
+			message: 'Internal server error' 
+		});
+	}
+};

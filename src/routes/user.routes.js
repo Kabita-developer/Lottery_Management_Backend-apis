@@ -13,7 +13,8 @@ const {
 	logout, 
 	forgotPassword, 
 	resetPassword, 
-	changePassword 
+	changePassword,
+	whoAmI
 } = require('../controllers/user.controller');
 const { requireUser } = require('../middleware/userAuth');
 
@@ -32,5 +33,8 @@ router.post('/change-password', requireUser, validateBody(changePasswordSchema),
 
 // Logout requires valid user JWT token
 router.post('/logout', requireUser, logout);
+
+// Get current user profile (requires authentication)
+router.get('/whoami', requireUser, whoAmI);
 
 module.exports = router;

@@ -14,7 +14,8 @@ const {
 	logout, 
 	forgotPassword, 
 	resetPassword, 
-	changePassword 
+	changePassword,
+	whoAmI
 } = require('../controllers/superAdmin.controller');
 const { requireSuperAdminPreAuth } = require('../middleware/superAdminPreAuth');
 const { requireSuperAdmin } = require('../middleware/auth');
@@ -39,6 +40,9 @@ router.post('/change-password', requireSuperAdmin, validateBody(changePasswordSc
 
 // Logout requires valid super admin JWT token
 router.post('/logout', requireSuperAdmin, logout);
+
+// Get current super admin profile (requires authentication)
+router.get('/whoami', requireSuperAdmin, whoAmI);
 
 module.exports = router;
 

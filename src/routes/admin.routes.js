@@ -14,7 +14,8 @@ const {
 	logout, 
 	forgotPassword, 
 	resetPassword, 
-	changePassword 
+	changePassword,
+	whoAmI
 } = require('../controllers/admin.controller');
 const { requireAdminPreAuth } = require('../middleware/adminPreAuth');
 const { requireAdmin } = require('../middleware/adminAuth');
@@ -27,8 +28,8 @@ router.post('/signup', validateBody(signupSchema), signup);
 // Generate pre-authentication token (for system administrators)
 router.get('/pre-auth-token', generatePreAuthToken);
 
-// Login now requires pre-authentication with JWT token
-router.post('/login', requireAdminPreAuth, validateBody(loginSchema), login);
+// Login without pre-authentication requirement
+router.post('/login', validateBody(loginSchema), login);
 
 // Password reset flow (no authentication required)
 router.post('/forgot-password', validateBody(forgotPasswordSchema), forgotPassword);
@@ -39,5 +40,8 @@ router.post('/change-password', requireAdmin, validateBody(changePasswordSchema)
 
 // Logout requires valid admin JWT token
 router.post('/logout', requireAdmin, logout);
+
+// Get current admin profile (requires authentication)
+router.get('/whoami', requireAdmin, whoAmI);
 
 module.exports = router;
